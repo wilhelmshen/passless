@@ -10,9 +10,10 @@ services. It based on Yingbo Gu's `Shadowproxy`__ project and comes with
 two components, a plugin of `Slowdown`_ server and a client.
 
 For example, in most cases you have to run a ssh service at least. If you
-are `Slowdown`_ user, you can force users to access this ssh service only
-via the working `Slowdown`_ server. And so on, all private services can be
-protected under the `Slowdown`_ server.
+are having a `Slowdown`_ server, you can force users to access this ssh
+service only via the working `Slowdown`_ server (by forbidden non-local
+connections to the ssh service). All private services can be protected
+under the `Slowdown`_ server who is know as `Bastion Host`.
 
 __ https://github.com/guyingbo/shadowproxy
 
@@ -58,6 +59,7 @@ First, you need to create a `Slowdown`_ server.
 .. code-block:: console
 
     $ virtualenv --python=/usr/bin/python3 myserver
+    $ myserver/bin/pip3 install passless
     $ myserver/bin/slowdown --init
     Initialize a project in /PATH/TO/myserver? [Y/n]: Y
     Creating myserver/bin ... exists
@@ -98,7 +100,7 @@ Next, edit the profile. The config file of the slowdown server called
                     cipher      aes-128-cfb
                     password    PASSWORD
 
-                    # Bridge server (optional)
+                    # The forwarding server (optional)
                     #
                     #via passless://CIPHER:PASSWD@BRIDGE.SERVER/HOST/PATH/
 
@@ -106,14 +108,14 @@ Next, edit the profile. The config file of the slowdown server called
                     #
                     #adblk /PATH/TO/AD/BLOCK.conf
 
-                    # Connect directly to the server, if the connection
-                    # fails, auto switch to the bridge server specified
-                    # by the "via" configuration for transmission.
-                    # The default is "yes".
+                    # If the direct connection fails, use the forwarding
+                    # server instead. The default is "yes".
                     #
                     #auto_switch yes
 
                     # Deny access to the local ip, the default is "yes"
+                    # If you want a Bastion Host for local services, this
+                    # option must be setted to "no".
                     #
                     #global_only yes
 
@@ -174,7 +176,19 @@ remote server that running the `Slowdown`_ server with the Passless plugin.
 Ad block
 --------
 
-You can specify an ad block list for servers and clients. The file of the ad block list is very simple, as shown below:
+You can specify an ad block list for servers and clients (see the case
+ablove). The file of the ad block list is very simple, as shown below:
+
+.. code-block::
+
+    domain1 REJECT
+    domain2 REJECT
+        ...
+    domain1 PROXY
+    domain2 PROXY
+        ...
+
+Example:
 
 .. code-block::
 
