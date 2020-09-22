@@ -76,7 +76,7 @@ Configuration
 ^^^^^^^^^^^^^
 
 Next, edit the profile. The config file of the slowdown server called
-`slowdown.conf` is placed in the `etc` folder. Here's an example:
+``slowdown.conf`` is placed in the ``etc`` folder. Here's an example:
 
 .. code-block:: apacheconf
 
@@ -138,7 +138,7 @@ Next, edit the profile. The config file of the slowdown server called
         </http>
     </servers>
 
-Start server:
+Start the server:
 
 .. code-block:: console
 
@@ -146,8 +146,8 @@ Start server:
     2020-09-14 17:45:49 INFO slowdown/{__version__}
     2020-09-14 17:45:49 INFO Serving HTTP on 0.0.0.0 port 8080 ...
 
-In this case, Passless service is available on the host `example.com` and
-port `8080`.
+In this case, Passless service is available on the host ``example.com`` and
+port ``8080``.
 
 More details are documented at `Slowdown`_ project.
 
@@ -157,8 +157,8 @@ More details are documented at `Slowdown`_ project.
 Client
 ------
 
-The `passless` command can start the Passless client side server that
-support the `socks5` or `http` protocol.
+The **passless** command can start the Passless client side server that
+support the `socks5` and `http` protocol.
 
 .. code-block:: console
 
@@ -193,4 +193,4 @@ Example:
 .. code-block::
 
     com.baidu.adscdn REJECT
-    com.google PROXY
+    com.my-server PROXY
