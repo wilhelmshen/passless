@@ -164,14 +164,23 @@ support the `socks5` and `http` protocol.
 
     usage: bin/passless [-h] [-u USER] [-v | -vv | -q] SERVERS
 
-Example:
+Examples:
 
 .. code-block:: console
 
     sudo bin/passless -vv -u nobody "socks://127.0.0.1:1080/?via=passless://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passless/&auto_switch=no&global_only=no" "http://127.0.0.1:8118/?via=passless://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passless/&adblk=my_ad_block.conf"
 
+.. code-block:: console
+
+    bin/passless "127.0.0.1:1080?via=aes-128-cfb:PASSWORD@example.com:80/example.com/passless/"
+
 With this socks/http server, you can access private services of the
 remote server that running the `Slowdown`_ server with the Passless plugin.
+
+.. note::
+
+    The default scheme is `socks://`, the default via scheme is
+    `passless://` .
 
 Ad block
 --------

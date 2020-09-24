@@ -5,6 +5,7 @@ import collections
 import gevent.server
 import gevent.socket
 import ipaddress
+import re
 import shadowproxy.ciphers
 import slowdown.gvars
 import urllib.parse
@@ -21,10 +22,15 @@ default_ports = \
         'forward': 80,
             'red': 12345
     }
-via_example = 'pass://chacha20:password@127.0.0.1:8080/host/path/'
 
 def get_server(uri, is_via=False):
-    url    = urllib.parse.urlparse(uri)
+    if regex_scheme.search(uri) is None:
+        if is_via:
+            url = urllib.parse.urlparse('passless://' + uri)
+        else:
+            url = urllib.parse.urlparse('socks://' + uri)
+    else:
+        url = urllib.parse.urlparse(uri)
     kwargs = {}
     if is_via:
         proto = proxies.   via_protos[url.scheme]
@@ -170,3 +176,6 @@ ServerInfo = \
             'scheme'
         ]
     )
+
+regex_scheme = re.compile(r'^\w+://')
+via_example = 'pass://chacha20:password@127.0.0.1:8080/host/path/'
