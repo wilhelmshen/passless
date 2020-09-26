@@ -146,8 +146,8 @@ Start the server:
     2020-09-14 17:45:49 INFO slowdown/{__version__}
     2020-09-14 17:45:49 INFO Serving HTTP on 0.0.0.0 port 8080 ...
 
-In this case, Passless service is available on the host ``example.com`` and
-port ``8080``.
+In this case, Passless service is available on
+``pass://aes-128-cfb:PASSWORD@example.com:80/example.com/passless/`` .
 
 More details are documented at `Slowdown`_ project.
 
