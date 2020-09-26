@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 
+import distutils.errors
+import distutils.log
 import os
 import os.path
 import re
 import setuptools
+import setuptools.command.build_ext
+import subprocess
 import shutil
 import sys
 import zipfile
@@ -14,18 +18,6 @@ with open('src/passless/__init__.py') as f:
     version = re.search(r"__version__\s*=\s*'(.*)'", f.read()).group(1)
 with open('README.rst') as f:
     readme  = f.read()
-
-class ZipFile(zipfile.ZipFile):
-
-    def extract(self, member, path=None, pwd=None):
-        if not isinstance(member, zipfile.ZipInfo):
-            member = self.getinfo(member)
-        if path is None:
-            path = os.getcwd()
-        ret_val = self._extract_member(member, path, pwd)
-        attr = member.external_attr >> 16
-        os.chmod(ret_val, attr)
-        return ret_val
 
 class specialized_build_ext(setuptools.command.build_ext.build_ext):
 
@@ -71,12 +63,12 @@ class specialized_build_ext(setuptools.command.build_ext.build_ext):
                         proxychains_zip
                     )
                 )
-            with ZipFile(src) as f:
+            with zipfile.ZipFile(src) as f:
                 f.extractall(self.build_temp)
         if not os.path.isfile(temp_lib):
             make_process = \
                 subprocess.Popen(
-                    './configure && make',
+                    'chmod +x configure && ./configure && make',
                     cwd=temp_src,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,

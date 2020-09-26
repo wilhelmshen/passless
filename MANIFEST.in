@@ -1,0 +1,18 @@
+recursive-include src/passless *
+recursive-include deps *
+
+include LICENSE
+include README.rst
+include MANIFEST.in
+include setup.py
+
+prune build
+prune */__pycache__
+
+global-exclude *.so
+global-exclude *.o
+global-exclude *.lo
+global-exclude *.la
+global-exclude .dirstamp
+global-exclude config.log config.status config.cache
+global-exclude *.pyc
