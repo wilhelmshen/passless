@@ -111,13 +111,13 @@ Next, edit the profile. The config file of the slowdown server called
                     # If the direct connection fails, use the forwarding
                     # server instead. The default is "yes".
                     #
-                    #auto_switch yes
+                    #autoswitch yes
 
                     # Deny access to the local ip, the default is "yes"
                     # If you want a Bastion Host for local services, this
                     # option must be setted to "no".
                     #
-                    #global_only yes
+                    #globalonly yes
 
                     #accesslog  $LOGS/access-%Y%m.log
                     #errorlog   $LOGS/error-%Y%m.log
@@ -142,7 +142,7 @@ Start the server:
 
 .. code-block:: console
 
-    myserver/bin/slowdown -vv
+    $ myserver/bin/slowdown -vv
     2020-09-14 17:45:49 INFO slowdown/{__version__}
     2020-09-14 17:45:49 INFO Serving HTTP on 0.0.0.0 port 8080 ...
 
@@ -157,6 +157,10 @@ More details are documented at `Slowdown`_ project.
 Client
 ------
 
+
+passless
+^^^^^^^^
+
 The **passless** command can start the Passless client side server that
 support the `socks5` and `http` protocol.
 
@@ -168,11 +172,11 @@ Examples:
 
 .. code-block:: console
 
-    sudo bin/passless -vv -u nobody "socks://127.0.0.1:1080/?via=passless://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passless/&auto_switch=no&global_only=no" "http://127.0.0.1:8118/?via=passless://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passless/&adblk=my_ad_block.conf"
+    $ sudo bin/passless -vv -u nobody "socks://127.0.0.1:1080/?via=passless://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passless/&autoswitch=no&globalonly=no" "http://127.0.0.1:8118/?via=passless://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passless/&adblk=my_ad_block.conf"
 
 .. code-block:: console
 
-    bin/passless "127.0.0.1:1080?via=aes-128-cfb:PASSWORD@example.com:80/example.com/passless/"
+    $ bin/passless "127.0.0.1:1080?via=aes-128-cfb:PASSWORD@example.com:80/example.com/passless/"
 
 With this socks/http server, you can access private services of the
 remote server that running the `Slowdown`_ server with the Passless plugin.
@@ -181,6 +185,33 @@ remote server that running the `Slowdown`_ server with the Passless plugin.
 
     The default scheme is `socks://`, the default via scheme is
     `passless://` .
+
+
+proxychains
+^^^^^^^^^^^
+
+This script is based on Adam Hamsik's `proxychains`_ project.
+It automatically starts a temporary local socks server configured to the
+remote `Bastion Host`, and bridge the network traffic of the specified
+program, just as the original `proxychains`_ does.
+
+Example:
+
+.. code-block:: console
+
+    $ bin/proxychains pass://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passles/&autoswitch=no ssh user@example.com
+
+.. code-block:: console
+
+    $ bin/proxychains aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passles/ bash
+
+    Detect that you have entered bash in proxy mode, use "exit" to leave later.
+
+    $ exit
+    exit
+
+.. _proxychains: https://github.com/haad/proxychains
+
 
 Ad block
 --------
