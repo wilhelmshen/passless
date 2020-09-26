@@ -1,5 +1,9 @@
 # Copyright (c) 2020 Wilhelm Shen. See LICENSE for details.
 
+import sys
+
+sys.dont_write_bytecode = True
+
 import argparse
 import collections
 import copy
@@ -12,14 +16,14 @@ import resource
 import slowdown.fs
 import slowdown.gvars
 import slowdown.sysutil
-import sys
 import weakref
 
 from . import runtime
 from . import utils
 from . import   __doc__   as package__doc__
 from . import __version__
-from .get_server import get_server
+from .server   import get_server, URIArgument
+from .ad_block import ADBLKArgument
 
 default_verbose = 1
 
@@ -50,6 +54,7 @@ class Application(object):
     def exit(self, *args):
         for server in self.servers:
             server.stop()
+            server.close()
         if getattr(self, 'jobs', None):
             try:
                 gevent.killall(self.jobs)
@@ -64,7 +69,10 @@ def spawn(**kwargs):
     if os.path.isdir(opts.root):
         os.chdir(opts.root)
     else:
-        slowdown.gvars.logger.warning(f'No such directory: {opts.root}')
+        slowdown.gvars.logger.warning(
+            'The working dir is not changed (no such directory: '
+            f'{opts.root})'
+        )
     try:
         resource.setrlimit(resource.RLIMIT_NOFILE, (50000, 50000))
     except Exception:
@@ -84,6 +92,7 @@ def spawn(**kwargs):
     app.args = args
     app.pid  = os.getpid()
     app.servers = []
+    jobs._application = weakref.ref(app)
     runtime.application = app
     servers     = []
     ss_filters  = []
@@ -198,12 +207,12 @@ def ParserFactory(**kwargs):
     else:
         default_home = kwargs['home']
     parser.add_argument(
-                '--home',
-           dest='home',
-           type=str,
-        metavar='DIRECTORY',
-           help=f'home dir, the default is {default_home}',
-        default=default_home
+                    '--home',
+               dest='home',
+               type=str,
+            metavar='DIRECTORY',
+               help=f'home dir, the default is {default_home}',
+            default=default_home
     )
     if kwargs.get('root') is None:
         default_root = get_default_root(default_home)
@@ -262,7 +271,7 @@ def ParserFactory(**kwargs):
     parser.add_argument(
                     'servers',
               nargs='+',
-               type=str
+               type=URIArgument
     )
     return parser
 

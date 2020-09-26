@@ -1,6 +1,6 @@
 # Copyright (c) 2020 Wilhelm Shen. See LICENSE for details.
 
-import errno
+import argparse
 import os.path
 import weakref
 
@@ -10,59 +10,32 @@ DIRECT = 0
 PROXY  = 1
 REJECT = 2
 
-def get_adblk(filename):
-    app = runtime.application
-    fs  = app.fs
-    if filename.startswith(os.path.sep):
-        adblk = get_adblk_by_abspath(filename)
-        if adblk is None:
-            raise FileNotFoundError(errno.ENOENT,
-                                    f'No such file: {filename}')
-        else:
-            return adblk
-    adblk = \
-        get_adblk_by_abspath(
-            fs.os.path.abspath(
-                os.path.join(app.opts.home, filename)
-            )
-        )
-    if adblk is not None:
-        return adblk
-    adblk = \
-        get_adblk_by_abspath(
-            fs.os.path.abspath(
-                os.path.join(
-                    app.opts.home,
-                    'etc',
-                    filename
-                )
-            )
-        )
-    if adblk is not None:
-        return adblk
-    adblk = get_adblk_by_abspath(fs.os.path.abspath(filename))
-    if adblk is None:
-        raise FileNotFoundError(errno.ENOENT,
-                                f'No such file: {filename}')
+def ADBLKArgument(filename):
+    app = getattr(runtime, 'application', None)
+    if app is None:
+        os_path = os.path
     else:
-        return adblk
+        os_path = app.fs.os.path
+    path = os_path.abspath(filename)
+    if os_path.isfile(path):
+        return path
+    else:
+        raise argparse.ArgumentTypeError(f'No such file: {filename}')
 
-def get_adblk_by_abspath(path):
-    adblk = adblks.get(path)
-    if adblk is None:
-        fs = runtime.application.fs
-        if fs.os.path.isfile(path):
-            adblks[path] = adblk = AdBlock(fs, path)
-            return adblk
-        else:
-            return None
-    else:
-        return adblk
+def get_adblk(path):
+    if path in adblks:
+        return adblks[path]
+    adblks[path] = adblk = AdBlock(path)
+    return adblk
 
 class AdBlock(object):
 
-    def __init__(self, fs, path):
-        file = fs.open(path, 'rb')
+    def __init__(self, path):
+        app = getattr(runtime, 'application', None)
+        if app is None:
+            file =        open(path, 'rb')
+        else:
+            file = app.fs.open(path, 'rb')
         try:
             data = file.read()
         finally:

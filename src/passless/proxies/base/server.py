@@ -8,7 +8,7 @@ import slowdown.logging
 
 from ... import gvars
 from ... import utils
-from ...get_adblk import DIRECT, PROXY, REJECT
+from ...ad_block import DIRECT, PROXY, REJECT
 
 class ProxyBase(object):
 
@@ -21,14 +21,14 @@ class ProxyBase(object):
         self.plugin      = kwargs.get('plugin')
         self.via         = kwargs.get('via')
         self.kwargs      = kwargs
-        if 'auto_switch' in kwargs:
-            self.auto_switch = kwargs['auto_switch']
+        if 'autoswitch' in kwargs:
+            self.autoswitch = kwargs['autoswitch']
         else:
-            self.auto_switch = gvars.default_auto_switch
-        if 'global_only' in kwargs:
-            self.global_only = kwargs['global_only']
+            self.autoswitch = gvars.default_autoswitch
+        if 'globalonly' in kwargs:
+            self.globalonly = kwargs['globalonly']
         else:
-            self.global_only = gvars.default_global_only
+            self.globalonly = gvars.default_globalonly
 
     def __call__(self, socket, addr):
         try:
@@ -126,7 +126,7 @@ class ProxyBase(object):
                 break
 
     def create_connection(self, target_addr):
-        if self.global_only and not utils.is_global(target_addr[0]):
+        if self.globalonly and not utils.is_global(target_addr[0]):
             raise ValueError('non global target address is forbidden '
                              f'{target_addr}')
         source_addr = self.kwargs.get('source_addr')
@@ -137,10 +137,10 @@ class ProxyBase(object):
                         gevent.socket.create_connection(target_addr),
                         DIRECT
                     )
-            elif self.auto_switch:
+            elif self.autoswitch:
                 res = None
                 try:
-                    with gevent.Timeout(gvars.auto_switch_timeout, False):
+                    with gevent.Timeout(gvars.autoswitch_timeout, False):
                         res = \
                             (
                                 gevent.socket.create_connection(
@@ -183,7 +183,7 @@ class ProxyBase(object):
                         PROXY
                     )
         else:
-            if self.via is None or not self.auto_switch:
+            if self.via is None or not self.autoswitch:
                 return \
                     (
                         gevent.socket.create_connection(target_addr),
@@ -192,7 +192,7 @@ class ProxyBase(object):
             else:
                 res = None
                 try:
-                    with gevent.Timeout(gvars.auto_switch_timeout, False):
+                    with gevent.Timeout(gvars.autoswitch_timeout, False):
                         res = \
                             (
                                 gevent.socket.create_connection(

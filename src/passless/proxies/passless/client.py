@@ -6,7 +6,7 @@ import slowdown.http
 
 from ... import gvars
 from ... import utils
-from ... import ImNotSpider
+from . import ImNotSpider
 from .shadowsockssocket import ShadowSocksSocket
 
 class PasslessClient(object):
@@ -42,7 +42,7 @@ class PasslessClient(object):
         )
         environ = slowdown.http.new_environ(reader, server_side=False)
         if '200' != environ['RESPONSE_STATUS']:
-            raise BrokenPipeError(errno.EPIPE, 'Broken pipe')
+            raise BrokenPipeError(errno.EPIPE, 'Authentication failed')
         rw = SSRWPair(socket, reader, environ)
         via_socket = ShadowSocksSocket(self.cipher, rw)
         via_socket.sendall(utils.pack_addr(target_addr))
