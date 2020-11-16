@@ -109,15 +109,15 @@ Next, edit the profile. The config file of the slowdown server called
                     #adblk /PATH/TO/AD/BLOCK.conf
 
                     # If the direct connection fails, use the forwarding
-                    # server instead. The default is "yes".
+                    # server instead. The default is "no".
                     #
-                    #autoswitch yes
+                    #autoswitch no
 
-                    # Deny access to the local ip, the default is "yes"
-                    # If you want a Bastion Host for local services, this
-                    # option must be setted to "no".
+                    # Deny access to the local ip, the default is "no"
+                    # If you want a Bastion Host, this option must be
+                    # setted to "no".
                     #
-                    #globalonly yes
+                    #globalonly no
 
                     #accesslog  $LOGS/access-%Y%m.log
                     #errorlog   $LOGS/error-%Y%m.log
@@ -176,7 +176,7 @@ Examples:
 
 .. code-block:: console
 
-    $ bin/passless "127.0.0.1:1080?via=aes-128-cfb:PASSWORD@example.com:80/example.com/passless/"
+    $ bin/passless "127.0.0.1:1080?via=aes-128-cfb:PASSWORD@example.com/example.com/passless/"
 
 With this socks/http server, you can access private services of the
 remote server that running the `Slowdown`_ server with the Passless plugin.
@@ -199,11 +199,11 @@ Example:
 
 .. code-block:: console
 
-    $ bin/proxychains pass://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passles/&autoswitch=no ssh user@example.com
+    $ bin/proxychains "pass://aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passles/&autoswitch=no" ssh user@example.com
 
 .. code-block:: console
 
-    $ bin/proxychains aes-128-cfb:PASSWORD@example.com:8080/example.com:8080/passles/ bash
+    $ bin/proxychains "aes-128-cfb:PASSWORD@example.com/example.com/passles/" bash
 
     Detect that you have entered bash in proxy mode, use "exit" to leave later.
 
@@ -211,6 +211,10 @@ Example:
     exit
 
 .. _proxychains: https://github.com/haad/proxychains
+
+.. note::
+    The default socks port is ``1080`` ,
+    the default passless port is ``80`` .
 
 
 Ad block

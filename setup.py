@@ -10,6 +10,7 @@ import setuptools.command.build_ext
 import subprocess
 import shutil
 import sys
+import sysconfig
 import zipfile
 
 proxychains_zip = 'proxychains-4.2.0.zip'
@@ -32,14 +33,11 @@ class specialized_build_ext(setuptools.command.build_ext.build_ext):
             super(specialized_build_ext, self).build_extension(ext)
 
     def build_extension_libproxychains4(self, ext):
-        platform = sys.platform.lower()
-        if 'linux' in platform or 'bsd' in platform:
-            libproxychains4 = 'libproxychains4.so'
-        elif 'darwin' == platform:
-            libproxychains4 = 'libproxychains4.dylib'
-        else:
-            raise NotImplementedError(f'the platform "{sys.platform}" '
-                                    'is not currently supported')
+        lib_ext_suffix = \
+            os.path.splitext(
+                sysconfig.get_config_var('EXT_SUFFIX')
+            )[1]
+        libproxychains4 = 'libproxychains4' + lib_ext_suffix
         temp_src = \
             os.path.join(
                 self.build_temp,

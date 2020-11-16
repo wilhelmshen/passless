@@ -223,10 +223,11 @@ def get_client(uri):
     return proto(**kwargs)
 
 def parse_addr(s):
-    host, sep, port = s.rpartition(':')
-    if '' == sep:
-        raise ValueError('via port is required')
-    port = -1 if not port else int(port)
+    host, sep, _port = s.partition(':')
+    if not _port:
+        port = -1
+    else:
+        port = int(_port)
     if not host:
         host = '0.0.0.0'
     elif len(host) >= 4 and host[0] == '[' and host[-1] == ']':

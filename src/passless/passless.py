@@ -97,7 +97,7 @@ def spawn(**kwargs):
     servers     = []
     ss_filters  = []
     slowdown.gvars.logger.info(f'{__package__}/{__version__}')
-    for uri in args.servers:
+    for uri in args.server:
         try:
             server_info = get_server(uri)
         except Exception as err:
@@ -269,7 +269,7 @@ def ParserFactory(**kwargs):
             default=False
         )
     parser.add_argument(
-                    'servers',
+                    'server',
               nargs='+',
                type=URIArgument
     )

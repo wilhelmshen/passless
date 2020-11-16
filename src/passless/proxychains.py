@@ -2,10 +2,11 @@ import sys
 
 sys.dont_write_bytecode = True
 
+import argparse
 import copy
 import os
 import os.path
-import argparse
+import sysconfig
 
 from . import   __doc__   as package__doc__
 from . import __version__
@@ -44,26 +45,31 @@ def run(addr, program, args):
 
     import gevent.subprocess
 
-    platform = sys.platform.lower()
-    if 'linux' in platform or 'bsd' in platform:
-        filename = 'libproxychains4.so'
-    elif 'darwin' == platform:
-        filename = 'libproxychains4.dylib'
-    else:
-        raise NotImplementedError(f'the platform "{sys.platform}" '
-                                  'is not currently supported')
+    lib_ext_suffix = \
+        os.path.splitext(
+            sysconfig.get_config_var('EXT_SUFFIX')
+        )[1]
     libproxychains4_so = \
         os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),
-                filename
+                'libproxychains4' + lib_ext_suffix
             )
         )
-    if 'linux' in platform or 'bsd' in platform:
-        os.environ['LD_PRELOAD'] = libproxychains4_so
-    if 'darwin' == platform:
-        os.environ['DYLD_INSERT_LIBRARIES'    ] = libproxychains4_so
+    libs = [libproxychains4_so]
+    platform = sys.platform.lower()
+    if 'linux' in platform:
+        if 'LD_PRELOAD' in os.environ:
+            libs = set(os.environ['LD_PRELOAD'].split() + libs)
+        os.environ['LD_PRELOAD'] = ' '.join(libs)
+    elif 'darwin' == platform:
+        if 'DYLD_INSERT_LIBRARIES' in os.environ:
+            libs = set(os.environ['DYLD_INSERT_LIBRARIES'].split() + libs)
+        os.environ['DYLD_INSERT_LIBRARIES'] = ' '.join(libs)
         os.environ['DYLD_FORCE_FLAT_NAMESPACE'] = 1
+    else:
+        raise NotImplementedError(f'the platform "{sys.platform}" '
+                                  'is not currently supported')
     os.environ['PROXYCHAINS_SOCKS5_PORT'] = f'{addr[1]}'
     os.environ['PROXYCHAINS_QUIET_MODE' ] =  '1'
     if program.rpartition(os.path.sep)[2] in shell:
